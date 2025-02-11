@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema ST - Gestión de Vehículos</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1a56db;
+            --primary-hover: #1e429f;
+            --background-start: #f8fafc;
+            --background-end: #e2e8f0;
+            --card-background: rgba(255, 255, 255, 0.95);
+            --text-primary: #1a365d;
+            --text-secondary: #475569;
+            --border-color: #e5e7eb;
+            --input-background: #f9fafb;
+            --success-bg: #dcfce7;
+            --success-text: #166534;
+            --error-bg: #fee2e2;
+            --error-text: #991b1b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--background-start), var(--background-end));
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        body::before {
+            background: radial-gradient(var(--primary-color), transparent 70%);
+            top: -100px;
+            left: -100px;
+        }
+
+        body::after {
+            background: radial-gradient(var(--primary-hover), transparent 70%);
+            bottom: -100px;
+            right: -100px;
+        }
+
+        .container {
+            background: var(--card-background);
+            padding: 3rem;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 
+                       0 30px 60px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 580px;
+            position: relative;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background: var(--primary-color);
+            margin: 1.5rem auto 0;
+            border-radius: 2px;
+        }
+
+        .header h1 {
+            color: var(--text-primary);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 80%;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .form-group i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            pointer-events: none;
+            transition: color 0.2s ease;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 1rem 1rem 1rem 2.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--input-background);
+            color: var(--text-primary);
+        }
+
+        input:hover, select:hover {
+            background: white;
+            border-color: var(--primary-color);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            background: white;
+        }
+
+        input:focus + i, 
+        input:hover + i,
+        .form-group:hover i {
+            color: var(--primary-color);
+        }
+
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.5em;
+            padding-right: 2.5rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 1.25rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s ease;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover::before {
+            transform: translateX(100%);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: var(--text-secondary);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s ease-in-out infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .alert {
+            margin-top: 1.5rem;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            display: none;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            animation: slideIn 0.3s ease;
+            position: relative;
+            padding-left: 3rem;
+        }
+
+        .alert::before {
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .alert-success {
+            background: var(--success-bg);
+            color: var(--success-text);
+            border: 1px solid #86efac;
+        }
+
+        .alert-success::before {
+            content: '\f00c';
+            color: #16a34a;
+        }
+
+        .alert-error {
+            background: var(--error-bg);
+            color: var(--error-text);
+            border: 1px solid #fecaca;
+        }
+
+        .alert-error::before {
+            content: '\f071';
+            color: #dc2626;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-footer {
+            margin-top: 2.5rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            animation: fadeInUp 0.5s ease backwards;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.2s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
+        .form-group:nth-child(4) { animation-delay: 0.4s; }
+
+        .links-block {
+            margin-bottom: 1.5rem;
+        }
+
+        .link-row {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .link-row input {
+            padding-left: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .link-row i {
+            position: absolute;
+            left: 1rem;
+            top: 1.2rem;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .button-container {
+            margin-top: 0.5rem;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .remove-link-btn {
+            background: none;
+            border: 1px solid #dc2626;
+            color: #dc2626;
+            cursor: pointer;
+            font-size: 0.875rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .remove-link-btn:hover {
+            background-color: #dc2626;
+            color: white;
+        }
+
+        .add-link-btn {
+            display: inline-block;
+            margin-top: -0.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            background: none;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .add-link-btn:hover {
+            text-decoration: underline;
+        }
+
+        #resultsList {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            display: none;
+        }
+
+        .result-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-item strong {
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+
+        .result-item span {
+            font-size: 0.9rem;
+        }
+
+        .success-text {
+            color: var(--success-text);
+            font-weight: 600;
+        }
+
+        .error-text {
+            color: var(--error-text);
+            font-weight: 600;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+            .container {
+                padding: 2rem;
+                border-radius: 20px;
+            }
+            .header h1 {
+                font-size: 1.75rem;
+            }
+            .header p {
+                font-size: 1rem;
+                max-width: 100%;
+            }
+            input, select, button {
+                font-size: 1rem;
+            }
+            .logo {
+                width: 100px;
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-container">
+            <img src="https://storage.googleapis.com/cluvi/st.png" alt="Logo ST" class="logo">
+        </div>
+        
+        <div class="header">
+            <h1>Gestión de Vehículos</h1>
+            <p>Sistema de captación y ofrecimiento de vehículos.</p>
+        </div>
+        
+        <!-- Checkbox para procesar con Excel -->
+        <div class="form-group">
+            <input 
+                type="checkbox" 
+                id="useExcelCheckbox" 
+                style="width: auto; transform: scale(1.2); margin-right: 0.5rem; vertical-align: middle;"
+            >
+            <label for="useExcelCheckbox" style="display: inline;">Procesar masivamente con Excel</label>
+        </div>
+
+        <!-- Formulario principal -->
+        <form id="vehicleForm">
+            <div class="form-group">
+                <label for="commercial">Nombre del Comercial</label>
+                <input 
+                    type="text" 
+                    id="commercial" 
+                    name="commercial" 
+                    required 
+                    placeholder="Nombre completo"
+                    autocomplete="off"
+                >
+                <i class="fas fa-user"></i>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Teléfono</label>
+                <input 
+                    type="tel" 
+                    id="phone" 
+                    name="phone" 
+                    required 
+                    placeholder="XXX XXX XXXX"
+                    maxlength="10"
+                    pattern="[0-9]{10}"
+                    title="Ingrese un número de teléfono de 10 dígitos"
+                >
+                <i class="fas fa-phone"></i>
+            </div>
+
+            <!-- Campo Excel (se muestra solo si "useExcelCheckbox" está marcado) -->
+            <div class="form-group" id="excelUploadGroup" style="display: none;">
+                <label for="excelFile">Archivo de Excel (solo enlaces en columna A)</label>
+                <input 
+                    type="file" 
+                    id="excelFile" 
+                    name="excelFile"
+                    accept=".xlsx, .xls"
+                >
+                <i class="fas fa-file-excel"></i>
+            </div>
+
+            <!-- Select de acción masiva (se muestra SÍ "useExcelCheckbox" está marcado) -->
+            <div class="form-group" id="massActionGroup" style="display: none;">
+                <label for="massAction">Acción (Carga Masiva)</label>
+                <select id="massAction" name="massAction">
+                    <option value="captar">Captar Vehículos</option>
+                    <option value="ofrecer">Ofrecer Vehículos</option>
+                </select>
+                <i class="fas fa-tasks"></i>
+            </div>
+
+            <!-- Campos adicionales (acción, enviar al cliente, etc.) se ocultarán si se marca "useExcelCheckbox" -->
+            <div id="nonExcelFields">
+                <div class="form-group">
+                    <label for="action">Acción</label>
+                    <select id="action" name="action" required>
+                        <option value="captar">Captar Vehículos</option>
+                        <option value="ofrecer">Ofrecer Vehículos</option>
+                    </select>
+                    <i class="fas fa-tasks"></i>
+                </div>
+
+                <div class="form-group">
+                    <input 
+                        type="checkbox" 
+                        id="sendToClient" 
+                        name="sendToClient" 
+                        style="width: auto; transform: scale(1.2); margin-right: 0.5rem; vertical-align: middle;"
+                    >
+                    <label for="sendToClient" style="display: inline;">Enviar también al Cliente</label>
+                </div>
+
+                <div class="form-group" id="clientPhoneGroup" style="display: none;">
+                    <label for="clientPhone">Teléfono del Cliente</label>
+                    <input 
+                        type="tel" 
+                        id="clientPhone" 
+                        name="clientPhone" 
+                        placeholder="XXX XXX XXXX"
+                        maxlength="10"
+                        pattern="[0-9]{10}"
+                        title="Número de teléfono de 10 dígitos"
+                    >
+                    <i class="fas fa-phone"></i>
+                </div>
+
+                <div class="links-block">
+                    <label>URLs de Vehículos</label>
+                    <div id="linksContainer">
+                        <div class="link-row">
+                            <input type="url" class="link-input" placeholder="https://ejemplo.com/vehiculo" required>
+                            <i class="fas fa-link"></i>
+                            <div class="button-container">
+                                <button type="button" class="remove-link-btn"><i class="fas fa-trash"></i> Eliminar URL</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="add-link-btn" id="addLinkBtn">
+                        <i class="fas fa-plus"></i> Agregar link
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" id="submitButton">
+                <span class="spinner" id="loadingSpinner"></span>
+                <i class="fas fa-check"></i>
+                <span id="buttonText">Procesar</span>
+            </button>
+        </form>
+
+        <div id="successAlert" class="alert alert-success">
+            Operación completada exitosamente
+        </div>
+        
+        <div id="errorAlert" class="alert alert-error">
+            Ha ocurrido un error al procesar la solicitud
+        </div>
+
+        <div id="resultsList"></div>
+
+        <div class="form-footer">
+            © 2025 Sistema ST - Todos los derechos reservados
+        </div>
+    </div>
+
+    <script>
+        const useExcelCheckbox = document.getElementById('useExcelCheckbox');
+        const excelUploadGroup = document.getElementById('excelUploadGroup');
+        const massActionGroup = document.getElementById('massActionGroup');
+        const nonExcelFields = document.getElementById('nonExcelFields');
+
+        // Checkbox y campo para enviar al cliente
+        const sendToClientCheckbox = document.getElementById('sendToClient');
+        const clientPhoneGroup = document.getElementById('clientPhoneGroup');
+        const clientPhoneInput = document.getElementById('clientPhone');
+
+        const vehicleForm = document.getElementById('vehicleForm');
+        const submitButton = document.getElementById('submitButton');
+        const spinner = document.getElementById('loadingSpinner');
+        const buttonText = document.getElementById('buttonText');
+        const successAlert = document.getElementById('successAlert');
+        const errorAlert = document.getElementById('errorAlert');
+        const resultsList = document.getElementById('resultsList');
+
+        const linksContainer = document.getElementById('linksContainer');
+        const addLinkBtn = document.getElementById('addLinkBtn');
+
+        successAlert.style.display = 'none';
+        errorAlert.style.display = 'none';
+        resultsList.style.display = 'none';
+
+        // Mostrar/ocultar campo de teléfono de cliente según el checkbox
+        sendToClientCheckbox.addEventListener('change', () => {
+            if (sendToClientCheckbox.checked) {
+                clientPhoneGroup.style.display = 'block';
+                clientPhoneInput.required = true;
+            } else {
+                clientPhoneGroup.style.display = 'none';
+                clientPhoneInput.required = false;
+            }
+        });
+
+        // Evento para el checkbox de Excel
+        useExcelCheckbox.addEventListener('change', () => {
+            if (useExcelCheckbox.checked) {
+                // Mostrar campo de carga de Excel y select de acción masiva
+                excelUploadGroup.style.display = 'block';
+                massActionGroup.style.display = 'block';
+                // Ocultar campos de links y acción
+                nonExcelFields.style.display = 'none';
+                // Quitar required de los campos de link
+                document.querySelectorAll('.link-input').forEach(inp => {
+                    inp.required = false;
+                });
+            } else {
+                // Ocultar campo de carga de Excel y select de acción masiva
+                excelUploadGroup.style.display = 'none';
+                massActionGroup.style.display = 'none';
+                // Mostrar campos de links y acción
+                nonExcelFields.style.display = 'block';
+                // Volver a poner required en el primer link
+                document.querySelectorAll('.link-input').forEach(inp => {
+                    inp.required = true;
+                });
+            }
+        });
+
+        addLinkBtn.addEventListener('click', () => {
+            const row = document.createElement('div');
+            row.className = 'link-row';
+            row.innerHTML = `
+                <input type="url" class="link-input" placeholder="https://ejemplo.com/vehiculo" required>
+                <i class="fas fa-link"></i>
+                <div class="button-container">
+                    <button type="button" class="remove-link-btn"><i class="fas fa-trash"></i> Eliminar URL</button>
+                </div>
+            `;
+            linksContainer.appendChild(row);
+
+            const removeBtn = row.querySelector('.remove-link-btn');
+            removeBtn.addEventListener('click', () => {
+                row.remove();
+            });
+        });
+
+        vehicleForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            successAlert.style.display = 'none';
+            errorAlert.style.display = 'none';
+            resultsList.style.display = 'none';
+            resultsList.innerHTML = '';
+
+            submitButton.disabled = true;
+            spinner.style.display = 'inline-block';
+            buttonText.textContent = 'Procesando...';
+            submitButton.querySelector('i').style.display = 'none';
+
+            try {
+                const commercial = document.getElementById('commercial').value.trim();
+                let phone = document.getElementById('phone').value.trim();
+
+                if (useExcelCheckbox.checked) {
+                    // Carga masiva
+                    const formData = new FormData();
+                    formData.append('commercial', commercial);
+                    formData.append('phone', phone);
+
+                    // Acción masiva
+                    const massAction = document.getElementById('massAction').value;
+                    formData.append('massAction', massAction);
+
+                    // Archivo
+                    const excelFile = document.getElementById('excelFile').files[0];
+                    if (!excelFile) {
+                        throw new Error('Por favor selecciona un archivo de Excel.');
+                    }
+                    formData.append('excelFile', excelFile);
+
+                    const resp = await fetch('/mass_upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await resp.json();
+                    if (result.status === 'ok') {
+                        let html = "";
+                        let allSuccess = true;
+                        result.results.forEach(r => {
+                            if (r.status !== 'success') {
+                                allSuccess = false;
+                            }
+                            html += `<div class="result-item"><strong>${r.url}</strong><span>${r.message}</span></div>`;
+                        });
+                        resultsList.innerHTML = html;
+                        resultsList.style.display = 'block';
+                        if (allSuccess) {
+                            successAlert.textContent = "Operación completada exitosamente";
+                            successAlert.style.display = 'block';
+                            errorAlert.style.display = 'none';
+                        } else {
+                            errorAlert.textContent = "Algunas URLs no se pudieron procesar.";
+                            errorAlert.style.display = 'block';
+                            successAlert.style.display = 'none';
+                        }
+                    } else {
+                        throw new Error(result.message || 'Error al procesar la solicitud masiva');
+                    }
+
+                } else {
+                    // Lógica normal
+                    const action = document.getElementById('action').value;
+                    const sendToClient = sendToClientCheckbox.checked;
+                    let clientPhone = clientPhoneInput.value.trim();
+
+                    const linkInputs = document.querySelectorAll('.link-input');
+                    const urls = [];
+                    linkInputs.forEach(inp => {
+                        if (inp.value.trim()) {
+                            urls.push(inp.value.trim());
+                        }
+                    });
+
+                    const payload = {
+                        commercial,
+                        phone,
+                        action,
+                        urls,
+                        sendToClient,
+                        clientPhone
+                    };
+
+                    const resp = await fetch('/process', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await resp.json();
+
+                    if (result.status === 'ok') {
+                        let html = "";
+                        let allSuccess = true;
+                        result.results.forEach(r => {
+                            if (r.status !== 'success') {
+                                allSuccess = false;
+                            }
+                            html += `<div class="result-item"><strong>${r.url}</strong><span>${r.message}</span></div>`;
+                        });
+                        resultsList.innerHTML = html;
+                        resultsList.style.display = 'block';
+                        if (allSuccess) {
+                            successAlert.textContent = "Operación completada exitosamente";
+                            successAlert.style.display = 'block';
+                            errorAlert.style.display = 'none';
+                        } else {
+                            errorAlert.textContent = "Algunas URLs no se pudieron procesar.";
+                            errorAlert.style.display = 'block';
+                            successAlert.style.display = 'none';
+                        }
+                    } else {
+                        throw new Error(result.message || 'Error al procesar la solicitud');
+                    }
+                }
+
+            } catch (err) {
+                errorAlert.textContent = err.message || 'Ha ocurrido un error al procesar la solicitud';
+                errorAlert.style.display = 'block';
+            } finally {
+                submitButton.disabled = false;
+                spinner.style.display = 'none';
+                buttonText.textContent = 'Procesar';
+                submitButton.querySelector('i').style.display = 'inline';
+            }
+        });
+
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let val = e.target.value.replace(/\D/g, '');
+            val = val.slice(0, 10);
+            e.target.value = val;
+        });
+
+        document.getElementById('clientPhone').addEventListener('input', function(e) {
+            let val = e.target.value.replace(/\D/g, '');
+            val = val.slice(0, 10);
+            e.target.value = val;
+        });
+    </script>
+</body>
+</html>

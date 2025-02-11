@@ -1,0 +1,20 @@
+# Ignorar caché de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignorar archivos de credenciales
+creds-carros.json
+
+# Ignorar carpeta de imágenes descargadas
+imagenes_descargadas/
+
+# Ignorar entorno virtual
+rt/
+
+# Ignorar archivos de logs
+*.log
+
+# Ignorar archivos de cookies
+facebook_cookies.pkl
