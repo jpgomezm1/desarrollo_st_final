@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: carros_ui_container
+    ports:
+      - "8000:8000"
+    environment:
+      - FLASK_APP=carros_ui.py
+      - FLASK_RUN_HOST=0.0.0.0
+      - FLASK_RUN_PORT=8000
+    volumes:
+      - .:/code
+    restart: unless-stopped

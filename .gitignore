@@ -18,3 +18,11 @@ rt/
 
 # Ignorar archivos de cookies
 facebook_cookies.pkl
+
+# Ignorar archivos de caché
+*.cache
+
+# Virtual Environment
+venv/
+
+.env
