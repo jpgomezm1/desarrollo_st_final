@@ -6,7 +6,7 @@ Este proyecto es una aplicaci√≥n Flask que permite extraer y procesar informaci√
 
 ### **1. Clonar el repositorio**
 ```bash
- git clone [<URL_DEL_REPOSITORIO>](https://github.com/jpgomezm1/desarrollo_st_final.git)
+ git clone https://github.com/jpgomezm1/desarrollo_st_final.git
  cd desarollo_st_final
 ```
 
